@@ -31,6 +31,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/exam-execution/start").permitAll()
+                .requestMatchers("/api/exam-execution/attempt/**").permitAll()
+                .requestMatchers("/api/exams/access-code/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
             );

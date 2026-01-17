@@ -1,0 +1,178 @@
+<div class="question-form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Edit Question' : 'Create New Question' }}</h1>
+    <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  </div>
+
+  <form [formGroup]="questionForm" (ngSubmit)="onSubmit()" class="question-form">
+    <!-- Basic Question Info -->
+    <div class="form-section">
+      <h2>Question Details</h2>
+
+      <div class="form-group">
+        <label for="questionText">Question Text <span class="required">*</span></label>
+        <textarea
+          id="questionText"
+          formControlName="questionText"
+          rows="4"
+          class="form-control"
+          placeholder="Enter your question"
+        ></textarea>
+        <div *ngIf="questionForm.get('questionText')?.invalid && questionForm.get('questionText')?.touched" class="error-message">
+          Question text is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="paragraph">Paragraph (Optional)</label>
+        <textarea
+          id="paragraph"
+          formControlName="paragraph"
+          rows="3"
+          class="form-control"
+          placeholder="Enter optional paragraph or context"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Image URL (Optional)</label>
+        <input
+          type="url"
+          id="imageUrl"
+          formControlName="imageUrl"
+          class="form-control"
+          placeholder="https://example.com/image.jpg"
+        />
+      </div>
+    </div>
+
+    <!-- Options Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Answer Options</h2>
+        <button type="button" class="btn btn-sm btn-primary" (click)="addOption()">+ Add Option</button>
+      </div>
+
+      <div formArrayName="options" class="options-container">
+        <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i" class="option-item">
+          <div class="option-header">
+            <span class="option-label">{{ String.fromCharCode(65 + i) }}.</span>
+            <button type="button" class="btn-remove" (click)="removeOption(i)" *ngIf="options.length > minOptions">
+              ✕
+            </button>
+          </div>
+
+          <div class="option-content">
+            <div class="form-group">
+              <input
+                type="text"
+                formControlName="optionText"
+                class="form-control"
+                [placeholder]="'Option ' + String.fromCharCode(65 + i) + ' text'"
+              />
+              <div *ngIf="options.at(i)?.get('optionText')?.invalid && options.at(i)?.get('optionText')?.touched" class="error-message">
+                Option text is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <input
+                type="url"
+                formControlName="optionImageUrl"
+                class="form-control"
+                placeholder="Option image URL (optional)"
+              />
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-success]="isCorrectAnswer(i)"
+              [class.btn-outline]="!isCorrectAnswer(i)"
+              (click)="toggleCorrectAnswer(i)"
+            >
+              {{ isCorrectAnswer(i) ? '✓ Correct Answer' : 'Mark as Correct' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="correctAnswers.length === 0 && questionForm.get('correctAnswers')?.touched" class="error-message">
+        Please select at least one correct answer
+      </div>
+    </div>
+
+    <!-- Question Metadata -->
+    <div class="form-section">
+      <h2>Question Metadata</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="difficultyLevel">Difficulty Level <span class="required">*</span></label>
+          <select id="difficultyLevel" formControlName="difficultyLevel" class="form-control">
+            <option *ngFor="let diff of difficulties" [value]="diff">{{ diff }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="topic">Topic <span class="required">*</span></label>
+          <input
+            type="text"
+            id="topic"
+            formControlName="topic"
+            class="form-control"
+            placeholder="e.g., Mathematics, Physics, etc."
+          />
+          <div *ngIf="questionForm.get('topic')?.invalid && questionForm.get('topic')?.touched" class="error-message">
+            Topic is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Solution/Explanation (Examiner Only) -->
+    <div class="form-section">
+      <h2>Solution & Explanation (Visible to Examiners Only)</h2>
+
+      <div class="form-group">
+        <label for="solution">Solution (Optional)</label>
+        <textarea
+          id="solution"
+          formControlName="solution"
+          rows="3"
+          class="form-control"
+          placeholder="Enter the solution to this question"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="explanation">Explanation (Optional)</label>
+        <textarea
+          id="explanation"
+          formControlName="explanation"
+          rows="3"
+          class="form-control"
+          placeholder="Enter detailed explanation"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Error/Success Messages -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading || questionForm.invalid">
+        <span *ngIf="!isLoading">{{ isEditMode ? 'Update Question' : 'Create Question' }}</span>
+        <span *ngIf="isLoading">Processing...</span>
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>

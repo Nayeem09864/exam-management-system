@@ -1,0 +1,86 @@
+<div class="question-list-container">
+  <div class="header">
+    <h1>Question Bank</h1>
+    <button class="btn btn-primary" routerLink="/questions/create">+ Create New Question</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="difficulty">Difficulty:</label>
+      <select id="difficulty" [(ngModel)]="selectedDifficulty" (change)="onFilterChange()">
+        <option value="">All</option>
+        <option *ngFor="let diff of difficulties" [value]="diff">{{ diff }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="topic">Topic:</label>
+      <select id="topic" [(ngModel)]="selectedTopic" (change)="onFilterChange()">
+        <option value="">All Topics</option>
+        <option *ngFor="let topic of topics" [value]="topic">{{ topic }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="date">From Date:</label>
+      <input type="date" id="date" [(ngModel)]="selectedDate" (change)="onFilterChange()">
+    </div>
+
+    <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+  </div>
+
+  <!-- Loading/Error -->
+  <div *ngIf="isLoading" class="loading">Loading questions...</div>
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <!-- Questions List -->
+  <div *ngIf="!isLoading && !errorMessage" class="questions-container">
+    <div *ngIf="questions.length === 0" class="empty-state">
+      <p>No questions found. Create your first question to get started.</p>
+    </div>
+
+    <div *ngFor="let question of questions" class="question-card">
+      <div class="question-header">
+        <div class="question-info">
+          <span class="badge" [style.background-color]="getDifficultyColor(question.difficultyLevel)">
+            {{ question.difficultyLevel }}
+          </span>
+          <span class="topic-badge">{{ question.topic }}</span>
+        </div>
+        <div class="question-actions">
+          <button class="btn btn-sm btn-secondary" (click)="editQuestion(question.id!)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteQuestion(question.id!)">Delete</button>
+        </div>
+      </div>
+
+      <div class="question-content">
+        <h3>{{ question.questionText }}</h3>
+        <p *ngIf="question.paragraph" class="paragraph">{{ question.paragraph }}</p>
+        <img *ngIf="question.imageUrl" [src]="question.imageUrl" alt="Question image" class="question-image" onerror="this.style.display='none'">
+
+        <div class="options">
+          <h4>Options:</h4>
+          <div *ngFor="let option of question.options; let i = index" class="option">
+            <span class="option-label">{{ String.fromCharCode(65 + i) }}.</span>
+            <span [class.correct]="question.correctAnswerIndices.includes(i)">
+              {{ option.optionText }}
+            </span>
+            <span *ngIf="question.correctAnswerIndices.includes(i)" class="correct-indicator">✓ Correct</span>
+          </div>
+        </div>
+
+        <div *ngIf="question.solution || question.explanation" class="solution-section">
+          <h4>Solution/Explanation (Examiner Only):</h4>
+          <p *ngIf="question.solution"><strong>Solution:</strong> {{ question.solution }}</p>
+          <p *ngIf="question.explanation"><strong>Explanation:</strong> {{ question.explanation }}</p>
+        </div>
+
+        <div class="question-meta">
+          <small>Created: {{ question.createdAt || 'N/A' }}</small>
+          <small *ngIf="question.updatedAt"> | Updated: {{ question.updatedAt }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

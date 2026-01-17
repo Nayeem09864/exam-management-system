@@ -46,8 +46,19 @@ export class LoginComponent {
             this.errorMessage = '';
             // Clear form
             this.loginForm.reset();
-            // In a full app, you would redirect to dashboard here
-            // this.router.navigate(['/dashboard']);
+            
+            // Redirect to dashboard based on role
+            if (response.role === 'ADMIN') {
+              // Redirect admin to dashboard after a short delay
+              setTimeout(() => {
+                this.router.navigate(['/dashboard']);
+              }, 1000);
+            } else {
+              // For regular users, also redirect to dashboard (or you can create a different route)
+              setTimeout(() => {
+                this.router.navigate(['/dashboard']);
+              }, 1000);
+            }
           } else {
             this.errorMessage = response.message || 'Login failed';
             this.successMessage = '';
